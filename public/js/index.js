@@ -4,6 +4,16 @@ var socket = io();
 socket.on('connect', function () {
     console.log('connected to server');
 
+//WELCOME
+socket.on('welcomeMessage', function (welcome) {
+    console.log(welcome);
+});
+
+//NEWUSER
+socket.on('newUserJoined', function(newUser){
+    console.log(newUser);
+});
+
 //HI, I JUST CONNECTED
     // socket.emit('createdMessage', {
     //     to: "greg",

@@ -21,6 +21,16 @@ io.on('connection', (socket)=> {
 // NEW STANDARD USER MESSAGE RECEIVED 
 socket.on('createStandardMessage', (receivedFromClient) =>{
     console.log('new standard user message', receivedFromClient)
+   
+    //ADMIN MESSAGE TO NEW USER
+    socket.emit('welcomeMessage', {
+        text: 'You joined'
+    });
+    //ADMIN MESSAGE TO OTHER USERS
+    socket.broadcast.emit('newUserJoined', {
+        text: 'new user joined'
+    });
+    
     //EMIT TO ALL CONNECTIONS
     io.emit('standardMessage', {
         from: receivedFromClient.from,
