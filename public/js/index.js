@@ -4,32 +4,20 @@ var socket = io();
 socket.on('connect', function () {
     console.log('connected to server');
 
-//WELCOME
-socket.on('welcomeMessage', function (welcome) {
+});
+
+//RECEIVING NEW SYSTEM MESSAGE
+socket.on('systemMessage', function (welcome) {
     console.log(welcome);
 });
 
-//NEWUSER
-socket.on('newUserJoined', function(newUser){
-    console.log(newUser);
-});
-
-//HI, I JUST CONNECTED
-    // socket.emit('createdMessage', {
-    //     to: "greg",
-    //     text: "wow"
-    // });
-});
-
-//CREATING NEW STANDARD MESSAGE
-socket.emit('createStandardMessage', {
-    from: "greg",
-    text: "wow"
-});
 
 //RECEIVING NEW STANDARD MESSAGE
 socket.on('standardMessage', function (message) {
     console.log('new message', message);
+    var li = jQuery('<li></li>');
+    li.text(`${message.from}: ${message.text}`);
+    jQuery('#messages-received').append(li);
 });
 
 //DISCONNECT
@@ -39,3 +27,15 @@ socket.on('disconnect', function () {
 
 
 
+//INPUT
+jQuery('#message-form').on('submit', function (e) {
+    e.preventDefault();
+
+//CREATING NEW STANDARD MESSAGE
+    socket.emit('createStandardMessage', {
+        from: 'User',
+        text: jQuery("[name=message]").val()
+    }, function () {
+
+    });
+});

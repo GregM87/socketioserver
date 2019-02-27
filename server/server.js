@@ -2,6 +2,8 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io')
+
+const {generateMessage} = require('./utils/message')
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 
@@ -16,41 +18,34 @@ app.use(express.static(publicPath));
 io.on('connection', (socket)=> {
  console.log('new user connected');
 
+    //ADMIN MESSAGE TO NEW USER
+    socket.emit('standardMessage', generateMessage('Admin', 'Hi, welcome to this chat'));
+    //ADMIN MESSAGE TO OTHER USERS
+    socket.broadcast.emit('standardMessage', generateMessage('Admin', 'New user joined'));
 
 
-// NEW STANDARD USER MESSAGE RECEIVED 
-socket.on('createStandardMessage', (receivedFromClient) =>{
+    // NEW STANDARD USER MESSAGE RECEIVED 
+    socket.on('createStandardMessage', (receivedFromClient, callback) => {
     console.log('new standard user message', receivedFromClient)
    
-    //ADMIN MESSAGE TO NEW USER
-    socket.emit('welcomeMessage', {
-        text: 'You joined'
+        //EMIT TO ALL CONNECTIONS
+        io.emit('standardMessage', generateMessage(receivedFromClient.from,receivedFromClient.text));
+        //callbackfunction that message was received
+        callback('✓');
     });
-    //ADMIN MESSAGE TO OTHER USERS
-    socket.broadcast.emit('newUserJoined', {
-        text: 'new user joined'
-    });
-    
-    //EMIT TO ALL CONNECTIONS
-    io.emit('standardMessage', {
-        from: receivedFromClient.from,
-        text: receivedFromClient.text,
-        createdAt: new Date().getTime()
-    });
-});
 
 
-//NEW STANDARD USER MESSAGE REDIRECTED
-// socket.emit('standardMessage', {
-//     from: 'Mike@example.com',
-//     text: 'Hey. What is going on',
-//     createdAt: 123
-// });
+    //NEW STANDARD USER MESSAGE REDIRECTED
+    // socket.emit('standardMessage', {
+    //     from: 'Mike@example.com',
+    //     text: 'Hey. What is going on',
+    //     createdAt: 123
+    // });
 
-// DISCONNECT
- socket.on('disconnect', () => {
- console.log('user was disconnected');
- });
+    // DISCONNECT
+    socket.on('disconnect', () => {
+    console.log('user was disconnected');
+    });
 
 });
 
